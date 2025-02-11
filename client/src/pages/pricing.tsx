@@ -6,10 +6,10 @@ import { Link } from "wouter";
 const plans = [
   {
     name: "Basic",
-    price: "$50",
+    price: "₹999",
     description: "Pay per service",
     features: [
-      "Towing up to 5 miles",
+      "Towing up to 5 km",
       "Battery jump start",
       "Tire change",
       "Fuel delivery (fuel cost extra)",
@@ -17,10 +17,10 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "$99/year",
+    price: "₹2,999/year",
     description: "Best value for frequent drivers",
     features: [
-      "Towing up to 25 miles",
+      "Towing up to 25 km",
       "Unlimited battery jump starts",
       "Tire changes",
       "Fuel delivery (including fuel)",

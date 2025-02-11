@@ -27,11 +27,12 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/service-area", (_req, res) => {
     res.json({
       serviceArea: [
-        { city: "New York", response: "15-30 min" },
-        { city: "Brooklyn", response: "20-35 min" },
-        { city: "Queens", response: "25-40 min" },
-        { city: "Bronx", response: "30-45 min" },
-        { city: "Staten Island", response: "35-50 min" }
+        { city: "Koramangala", response: "15-25 min" },
+        { city: "Indiranagar", response: "20-30 min" },
+        { city: "HSR Layout", response: "15-25 min" },
+        { city: "Whitefield", response: "25-35 min" },
+        { city: "Electronic City", response: "25-35 min" },
+        { city: "Marathahalli", response: "20-30 min" }
       ]
     });
   });
