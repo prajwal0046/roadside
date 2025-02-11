@@ -1,5 +1,7 @@
-import { users, type User, type InsertUser } from "@shared/schema";
-import { type ServiceRequest, type InsertServiceRequest, type Contact, type InsertContact } from "@shared/schema";
+import { users, serviceRequests, contactSubmissions } from "@shared/schema";
+import { type User, type InsertUser, type ServiceRequest, type InsertServiceRequest, type Contact, type InsertContact } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Service Request methods
@@ -14,72 +16,53 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private serviceRequests: Map<number, ServiceRequest>;
-  private contacts: Map<number, Contact>;
-  private currentId: number;
-  private serviceRequestsCurrentId: number;
-  private contactsCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.serviceRequests = new Map();
-    this.contacts = new Map();
-    this.currentId = 1;
-    this.serviceRequestsCurrentId = 1;
-    this.contactsCurrentId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequest> {
-    const id = this.serviceRequestsCurrentId++;
-    const createdAt = new Date();
-    const serviceRequest: ServiceRequest = {
-      ...request,
-      id,
-      status: "pending",
-      createdAt
-    };
-    this.serviceRequests.set(id, serviceRequest);
+    const [serviceRequest] = await db
+      .insert(serviceRequests)
+      .values({ ...request, status: "pending" })
+      .returning();
     return serviceRequest;
   }
 
   async getServiceRequest(id: number): Promise<ServiceRequest | undefined> {
-    return this.serviceRequests.get(id);
+    const [request] = await db
+      .select()
+      .from(serviceRequests)
+      .where(eq(serviceRequests.id, id));
+    return request || undefined;
   }
 
   async createContact(contact: InsertContact): Promise<Contact> {
-    const id = this.contactsCurrentId++;
-    const createdAt = new Date();
-    const newContact: Contact = {
-      ...contact,
-      id,
-      createdAt
-    };
-    this.contacts.set(id, newContact);
+    const [newContact] = await db
+      .insert(contactSubmissions)
+      .values(contact)
+      .returning();
     return newContact;
   }
 
   async getContact(id: number): Promise<Contact | undefined> {
-    return this.contacts.get(id);
+    const [contact] = await db
+      .select()
+      .from(contactSubmissions)
+      .where(eq(contactSubmissions.id, id));
+    return contact || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
